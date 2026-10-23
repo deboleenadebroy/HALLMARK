@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% from "_macros.html" import evidence_block, extracted_table, marker, badge %}
+{% block title %}Hallmark — {{ r.filename }}{% endblock %}
+{% block content %}
+{% set s = r.score %}
+{% set ev = {} %}{% for e in r.evidence %}{% set _ = ev.update({e.category: e}) %}{% endfor %}
+<header class="mini-head">
+  <a href="{{ url_for('index') }}" class="mini-brand"><img src="{{ url_for('assets', name='hallmark-logo.svg') }}" alt="" width="32" height="32"> Hallmark</a>
+  <span class="file-name" title="{{ r.filename }}">{{ r.filename }}</span>
+</header>
+
+<section class="card result band-{{ s.band.key }}">
+  <div class="score-wrap">
+    {% set pct = s.score if s.score is not none else 0 %}
+    <svg class="ring" viewBox="0 0 120 120" role="img" aria-label="Estimated Authenticity Score: {{ '%d%%' % (s.score|round) if s.score is not none else 'unavailable' }}">
+      <circle cx="60" cy="60" r="52" class="ring-track"/>
+      {% if s.score is not none %}
+      <circle cx="60" cy="60" r="52" class="ring-fill" stroke-dasharray="{{ '%.1f' % (326.73 * pct / 100) }} 326.73" transform="rotate(-90 60 60)"/>
+      {% endif %}
+      <text x="60" y="58" class="ring-num">{{ "%d" % (s.score|round) if s.score is not none else "—" }}{% if s.score is not none %}<tspan class="ring-pct">%</tspan>{% endif %}</text>
+      <text x="60" y="78" class="ring-cap">{{ "estimated" if s.score is not none else "unavailable" }}</text>
+    </svg>
+    <div class="score-text">
+      <p class="eyebrow">Estimated Authenticity Score</p>
+      <h2 class="status"><span class="status-icon" aria-hidden="true">{{ {"strong_authentic": "✓", "likely_authentic": "✓", "inconclusive": "?", "unavailable": "?", "suspicious": "!", "likely_forged": "✕"}[s.band.key] }}</span> {{ s.band.label }}</h2>
+      <p class="explain">{{ r.assessment.explanation }}</p>
+      <p class="method-note">Heuristic estimate · reliability: {{ s.reliability }} · not a verified probability</p>
+    </div>
+  </div>
+
+  <ul class="key-findings">
+    {% for k in r.assessment.key_findings %}
+    <li>{{ marker(k.direction) }}<span>{{ k.message }}</span></li>
+    {% endfor %}
+  </ul>
+
+  <div class="actions">
+    <a class="btn btn-primary" href="{{ url_for('report', rid=r.id) }}">Download Report</a>
+    <a class="btn btn-ghost" href="{{ url_for('index') }}">Analyse another certificate</a>
+  </div>
+</section>
+
+<details class="card details">
+  <summary>Detailed analysis</summary>
+  <div class="details-body">
+    {% if r.assessment.warnings or r.notes %}
+    <div class="warnbox">
+      <h3>Warnings</h3>
+      <ul>{% for w in r.assessment.warnings + r.notes %}<li>{{ w }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    <h3>AI visual model</h3>
+    <p class="sub">Reported separately: the model's output is one input to the overall score, not the score itself.</p>
+    {{ evidence_block(ev.visual_model) }}
+
+    <h3>Cryptographic signature</h3>
+    {{ evidence_block(ev.cryptography) }}
+
+    <h3>Document integrity</h3>
+    {{ evidence_block(ev.document_integrity) }}
+
+    <h3>Certificate details</h3>
+    {{ evidence_block(ev.identity_and_details) }}
+    {{ extracted_table(r.extracted) }}
+    <p class="sub">Text source: {{ r.text.source }} · quality: {{ r.text.quality }}{% if r.text.ocr_confidence is not none %} · mean OCR confidence {{ r.text.ocr_confidence }}%{% endif %}</p>
+
+    <h3>Not checked</h3>
+    {{ evidence_block(ev.issuer_discovery) }}
+    {{ evidence_block(ev.registry) }}
+
+    <h3>How the score was formed</h3>
+    <p class="sub">{{ s.method }} Starting point 50%; each line shows its log-odds contribution.</p>
+    {% if s.contributions %}
+    <table class="kv contrib">
+      {% for c in s.contributions %}
+      <tr><th>{{ "%+.2f" % c.logit }}</th><td>{{ c.message }}</td></tr>
+      {% endfor %}
+    </table>
+    {% else %}<p class="sub">No finding contributed to the score.</p>{% endif %}
+    {% if s.conflict %}<p class="sub">Conflicting strong evidence was found, so the total was halved toward 50%.</p>{% endif %}
+
+    <h3>File</h3>
+    <table class="kv">
+      <tr><th>Type</th><td>{{ r.file.kind | upper }} · {{ r.file.pages_analysed }} of {{ r.file.pages_total }} page(s) analysed · {{ "%.1f" % (r.file.size_bytes / 1024) }} KB</td></tr>
+      <tr><th>SHA-256</th><td class="mono">{{ r.file.sha256 }}</td></tr>
+      <tr><th>Analysed</th><td>{{ r.analysed_at }} · {{ r.duration_s }} s</td></tr>
+    </table>
+
+    <h3>Limitations</h3>
+    <ul class="plain">{% for l in r.limitations %}<li>{{ l }}</li>{% endfor %}</ul>
+    {% if r.assessment.recommendations %}
+    <h3>Recommendations</h3>
+    <ul class="plain">{% for l in r.assessment.recommendations %}<li>{{ l }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+</details>
+{% endblock %}

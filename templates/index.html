@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <img class="logo" src="{{ url_for('assets', name='hallmark-logo.svg') }}" alt="" width="96" height="96">
+  <h1 class="wordmark">Hallmark</h1>
+  <p class="tagline">Your mark of authenticity.</p>
+  <p class="lede">Upload a certificate. Hallmark checks its digital signature, document integrity and details,
+    and — when a trained model is installed — its visual features, then explains what the evidence shows.</p>
+</section>
+
+<form class="card upload" id="upload-form" action="{{ url_for('analyse') }}" method="post" enctype="multipart/form-data">
+  {% if error %}<div class="alert" role="alert"><span aria-hidden="true">!</span> {{ error }}</div>{% endif %}
+  <label class="drop" id="drop" for="file">
+    <input type="file" id="file" name="certificate" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" required>
+    <svg class="drop-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="drop-title" id="drop-title">Drop your certificate here</span>
+    <span class="drop-sub" id="drop-sub">or click to browse</span>
+  </label>
+  <p class="formats">PDF, PNG, JPG or JPEG · up to {{ max_mb }} MB</p>
+  <button type="submit" class="btn btn-primary" id="submit" disabled>Analyse Certificate</button>
+  <p class="busy" id="busy" hidden aria-live="polite"><span class="spinner" aria-hidden="true"></span> Analysing — reading text, checking signatures and integrity…</p>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/upload.js') }}"></script>{% endblock %}

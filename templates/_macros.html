@@ -1,0 +1,79 @@
+{% set STATUS = {
+  "PASS": ("✓", "Pass", "pass"),
+  "FAIL": ("✕", "Fail", "fail"),
+  "INCONCLUSIVE": ("?", "Inconclusive", "warn"),
+  "NOT_APPLICABLE": ("–", "Not applicable", "muted"),
+  "NOT_PERFORMED": ("○", "Not performed", "muted"),
+} %}
+
+{% macro badge(status) -%}
+{% set s = STATUS[status] %}<span class="badge badge-{{ s[2] }}"><span aria-hidden="true">{{ s[0] }}</span> {{ s[1] }}</span>
+{%- endmacro %}
+
+{% macro marker(direction) -%}
+{% if direction == "supports" %}<span class="mk mk-pass" aria-label="Supports authenticity">✓</span>
+{% elif direction == "concern" %}<span class="mk mk-fail" aria-label="Concern">!</span>
+{% else %}<span class="mk mk-muted" aria-label="Neutral">–</span>{% endif %}
+{%- endmacro %}
+
+{% macro evidence_block(ev, show_heatmap=true) %}
+<div class="ev">
+  <div class="ev-head"><h4>{{ ev.label }}</h4>{{ badge(ev.status) }}</div>
+  <p class="ev-expl">{{ ev.explanation }}</p>
+  {% set shown = ev.findings | rejectattr("code", "in", ["no_integrity_issues", "details_consistent"]) | list %}
+  {% if shown %}
+  <ul class="ev-findings">
+    {% for f in shown %}
+    <li>{% if f.direction > 0 %}{{ marker("supports") }}{% elif f.direction < 0 %}{{ marker("concern") }}{% else %}{{ marker("neutral") }}{% endif %}
+      <span>{{ f.message }}{% if f.strength != "none" and f.direction != 0 %} <em class="strength">({{ f.strength }} signal)</em>{% endif %}</span></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if ev.category == "visual_model" and ev.details.pages %}
+  <table class="kv">
+    {% for p in ev.details.pages %}
+    <tr><th>Page {{ p.page }}</th><td>P(forged) = {{ "%.1f" % (p.p_forged * 100) }}% · {{ p.ood | replace("_", " ") }}</td></tr>
+    {% endfor %}
+    {% if ev.details.test_metrics and ev.details.test_metrics.accuracy is not none %}
+    <tr><th>Held-out test</th><td>accuracy {{ "%.1f" % (ev.details.test_metrics.accuracy * 100) }}%{% if ev.details.test_metrics.roc_auc %}, ROC-AUC {{ "%.3f" % ev.details.test_metrics.roc_auc }}{% endif %}, n = {{ ev.details.test_metrics.n }}</td></tr>
+    {% endif %}
+    <tr><th>Calibration</th><td>{{ "temperature scaling (T = %.2f)" % ev.details.temperature if ev.details.calibrated else "not calibrated" }}</td></tr>
+  </table>
+  {% endif %}
+  {% if ev.category == "cryptography" and ev.details.signatures %}
+  {% for s in ev.details.signatures %}
+  <table class="kv">
+    <tr><th>Signature</th><td>{{ s.field_name }}</td></tr>
+    <tr><th>Signed content intact</th><td>{{ {True: "Yes", False: "No", None: "Unknown"}[s.intact] }}</td></tr>
+    <tr><th>Cryptographically valid</th><td>{{ {True: "Yes", False: "No", None: "Unknown"}[s.valid] }}</td></tr>
+    <tr><th>Trusted signer</th><td>{{ {True: "Yes", False: "No", None: "Unknown"}[s.trusted] }}</td></tr>
+    {% if s.algorithm %}<tr><th>Algorithm</th><td>{{ s.algorithm }}{% if s.key_bits %} · {{ s.key_type | upper }} {{ s.key_bits }}-bit{% endif %}</td></tr>{% endif %}
+    {% if s.signer_subject %}<tr><th>Signer</th><td>{{ s.signer_subject }}</td></tr>{% endif %}
+    {% if s.signer_issuer %}<tr><th>Signer certificate issuer</th><td>{{ s.signer_issuer }}</td></tr>{% endif %}
+    {% if s.not_before %}<tr><th>Signer certificate valid</th><td>{{ s.not_before[:10] }} → {{ s.not_after[:10] }}</td></tr>{% endif %}
+    {% if s.signing_time %}<tr><th>Signing time (claimed)</th><td>{{ s.signing_time[:19] | replace("T", " ") }}</td></tr>{% endif %}
+    {% if s.coverage %}<tr><th>Coverage</th><td>{{ s.coverage | replace("_", " ") | lower }}</td></tr>{% endif %}
+  </table>
+  {% endfor %}
+  {% endif %}
+  {% if show_heatmap and ev.details.heatmap_png_b64 %}
+  <figure class="heatmap"><img src="data:image/png;base64,{{ ev.details.heatmap_png_b64 }}" alt="Highlighted regions flagged by the pixel-noise check">
+    <figcaption>Highlighted: regions flagged by the pixel-noise heuristic.</figcaption></figure>
+  {% endif %}
+  {% if ev.limitations %}
+  <p class="ev-lim"><strong>Limitations:</strong> {{ ev.limitations | join(" ") }}</p>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro extracted_table(x) %}
+<table class="kv">
+  <tr><th>Recipient</th><td>{{ x.recipient or "Not identified" }}</td></tr>
+  <tr><th>Issuer (as printed)</th><td>{{ x.issuer or "Not identified" }}</td></tr>
+  <tr><th>Title</th><td>{{ x.title or "Not identified" }}</td></tr>
+  <tr><th>Course / achievement</th><td>{{ x.course or "Not identified" }}</td></tr>
+  <tr><th>Dates</th><td>{% if x.dates %}{% for d in x.dates %}{{ d.raw }}{% if d.role != "unspecified" %} ({{ d.role }}){% endif %}{% if not loop.last %}; {% endif %}{% endfor %}{% else %}None found{% endif %}</td></tr>
+  <tr><th>Identifiers</th><td>{% if x.identifiers %}{% for i in x.identifiers %}{{ i.label | title }}: {{ i.value }}{% if not loop.last %}; {% endif %}{% endfor %} <em class="strength">(display only — not used in the score)</em>{% else %}None found{% endif %}</td></tr>
+  {% if x.domains %}<tr><th>Web domains mentioned</th><td>{{ x.domains | join(", ") }} <em class="strength">(not contacted)</em></td></tr>{% endif %}
+</table>
+{% endmacro %}

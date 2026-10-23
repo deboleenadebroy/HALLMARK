@@ -1,0 +1,102 @@
+{% from "_macros.html" import evidence_block, extracted_table, marker %}
+{% set s = r.score %}
+{% set ev = {} %}{% for e in r.evidence %}{% set _ = ev.update({e.category: e}) %}{% endfor %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hallmark report — {{ r.filename }}</title>
+<style>
+  :root { --burgundy:#561C24; --burgundy-2:#6D2932; --taupe:#C7B7A3; --cream:#E8D8C4; --ink:#2A1A1C; --ink-2:#4A3A3C; --ink-3:#7A6A66;
+          --pass:#2F7A43; --fail:#A3302B; --warn:#8A6414; --muted:#7A6A66; --line:#E2D6C8; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#FBF7F1; color:var(--ink); font:300 14px/1.6 "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .page { max-width: 820px; margin: 0 auto; padding: 36px 24px 48px; }
+  header { display:flex; align-items:center; gap:14px; border-bottom: 2px solid var(--burgundy); padding-bottom: 14px; }
+  header svg { width: 52px; height: 52px; }
+  header h1 { margin:0; font: 600 28px Georgia, "Playfair Display", serif; color: var(--burgundy); }
+  header p { margin:0; font-style: italic; color: var(--burgundy-2); font-family: Georgia, serif; }
+  .meta { color: var(--ink-3); font-size: 12px; margin: 10px 0 22px; }
+  .summary { display:flex; gap: 24px; align-items:center; border:1px solid var(--line); border-radius: 12px; padding: 18px 20px; background:#fff; }
+  .num { font: 600 44px Georgia, serif; color: var(--burgundy); min-width: 120px; text-align:center; }
+  .num small { font-size: 20px; }
+  .eyebrow { margin:0; text-transform: uppercase; letter-spacing:.12em; font-size: 11px; color: var(--ink-3); }
+  h2.status { margin: 2px 0 6px; font: 600 22px Georgia, serif; color: var(--ink); }
+  h3 { font: 600 16px Georgia, serif; color: var(--burgundy); margin: 26px 0 8px; border-bottom:1px solid var(--line); padding-bottom: 4px; }
+  .key-findings, .ev-findings { list-style:none; padding:0; margin: 12px 0; display:grid; gap:8px; }
+  .key-findings li, .ev-findings li { display:flex; gap:10px; }
+  .mk { flex: 0 0 auto; display:inline-grid; place-items:center; width:20px; height:20px; border-radius:50%; font-weight:600; font-size:11px; border:1px solid; }
+  .mk-pass { color: var(--pass); } .mk-fail { color: var(--fail); } .mk-muted { color: var(--muted); }
+  .ev { border:1px solid var(--line); border-radius:10px; padding: 12px 14px; margin: 10px 0; background:#fff; break-inside: avoid; }
+  .ev-head { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+  .ev-head h4 { margin:0; font-weight:500; font-size: 14px; }
+  .ev-expl { margin: 6px 0; color: var(--ink-2); }
+  .ev-lim, .sub { font-size: 12px; color: var(--ink-3); margin: 6px 0; }
+  .strength { color: var(--ink-3); font-size: .9em; }
+  .badge { display:inline-flex; gap:5px; padding: 1px 9px; border-radius: 999px; font-size: 11px; font-weight: 500; border:1px solid; white-space: nowrap; }
+  .badge-pass { color: var(--pass); } .badge-fail { color: var(--fail); } .badge-warn { color: var(--warn); } .badge-muted { color: var(--muted); }
+  .kv { width:100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; }
+  .kv th, .kv td { text-align:left; vertical-align: top; padding: 5px 0; border-bottom: 1px solid #EFE6DA; }
+  .kv th { width: 36%; font-weight: 400; color: var(--ink-3); padding-right: 10px; }
+  .mono { font-family: ui-monospace, Menlo, monospace; font-size: 11px; word-break: break-all; }
+  ul.plain { padding-left: 18px; margin: 6px 0; } ul.plain li { margin: 3px 0; }
+  .heatmap img { max-width: 100%; border:1px solid var(--line); border-radius: 6px; }
+  .heatmap figcaption { font-size: 11px; color: var(--ink-3); }
+  .disclaimer { margin-top: 30px; padding: 12px 14px; border-left: 3px solid var(--burgundy); background: #F4ECE2; font-size: 12px; color: var(--ink-2); }
+  @media print { body { background:#fff; } .page { padding: 0; } }
+</style>
+</head>
+<body><div class="page">
+<header>{{ logo_svg | safe }}<div><h1>Hallmark</h1><p>Your mark of authenticity.</p></div></header>
+<p class="meta">Certificate assessment report · {{ r.analysed_at }} · File: <strong>{{ r.filename }}</strong> ({{ r.file.kind | upper }}, {{ r.file.pages_total }} page(s))</p>
+
+<section class="summary">
+  <div class="num">{% if s.score is not none %}{{ "%d" % (s.score|round) }}<small>%</small>{% else %}—{% endif %}</div>
+  <div>
+    <p class="eyebrow">Estimated Authenticity Score</p>
+    <h2 class="status">{{ s.band.label }}</h2>
+    <div>{{ r.assessment.explanation }}</div>
+    <p class="sub">{{ s.band.description }} Classification: {{ r.assessment.classification | replace("_", " ") }} · reliability: {{ s.reliability }}.</p>
+  </div>
+</section>
+
+<ul class="key-findings">
+  {% for k in r.assessment.key_findings %}<li>{{ marker(k.direction) }}<span>{{ k.message }}</span></li>{% endfor %}
+</ul>
+
+{% if r.assessment.warnings or r.notes %}
+<h3>Warnings and inconclusive checks</h3>
+<ul class="plain">{% for w in r.assessment.warnings + r.notes %}<li>{{ w }}</li>{% endfor %}</ul>
+{% endif %}
+
+<h3>Visual model findings</h3>
+{{ evidence_block(ev.visual_model) }}
+<h3>Cryptographic results</h3>
+{{ evidence_block(ev.cryptography) }}
+<h3>Document integrity</h3>
+{{ evidence_block(ev.document_integrity) }}
+<h3>Extracted certificate information</h3>
+{{ evidence_block(ev.identity_and_details) }}
+{{ extracted_table(r.extracted) }}
+<p class="sub">Text source: {{ r.text.source }} · quality: {{ r.text.quality }}{% if r.text.ocr_confidence is not none %} · mean OCR confidence {{ r.text.ocr_confidence }}%{% endif %}</p>
+<h3>Checks not performed</h3>
+{{ evidence_block(ev.issuer_discovery) }}
+{{ evidence_block(ev.registry) }}
+
+<h3>Score composition</h3>
+<p class="sub">{{ s.method }} Starting point 50%; contributions in log-odds.</p>
+<table class="kv">{% for c in s.contributions %}<tr><th>{{ "%+.2f" % c.logit }}</th><td>{{ c.message }}</td></tr>{% else %}<tr><td>No finding contributed to the score.</td></tr>{% endfor %}</table>
+
+<h3>File fingerprint</h3>
+<table class="kv"><tr><th>SHA-256</th><td class="mono">{{ r.file.sha256 }}</td></tr></table>
+<p class="sub">The fingerprint identifies this exact file. It proves nothing about authenticity unless compared with a hash published by the issuer.</p>
+
+<h3>Known limitations</h3>
+<ul class="plain">{% for l in r.limitations %}<li>{{ l }}</li>{% endfor %}</ul>
+<h3>Recommendations</h3>
+<ul class="plain">{% for l in r.assessment.recommendations %}<li>{{ l }}</li>{% endfor %}</ul>
+
+<div class="disclaimer">This report is an automated, evidence-based estimate produced by Hallmark. It is not a legally
+  recognised authenticity certificate and does not replace confirmation by the issuing institution.</div>
+</div></body></html>
