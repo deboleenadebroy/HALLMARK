@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Environments & secrets
+.venv/
+venv/
+env/
+.env
+*.key
+*.pem
+!trust_anchors/README.md
+secrets/
+
+# Data, uploads, logs
+data/
+datasets/
+uploads/
+tmp/
+*.log
+
+# Model weights (large; distribute via a GitHub Release — see README). Small evaluation records are kept.
+models/artifacts/*.pt
+models/artifacts/*.npz
+models/artifacts/splits.json
+
+# Trust anchors are deployment-specific
+trust_anchors/*
+!trust_anchors/README.md
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Demo files (regenerate with scripts/make_demo_files.py)
+demo/

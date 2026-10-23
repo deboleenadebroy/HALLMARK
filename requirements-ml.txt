@@ -1,0 +1,6 @@
+# AI visual model (training and inference). Install separately: it is large.
+# CPU-only:  pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+torch>=2.2            # tested 2.14.1
+torchvision>=0.17     # tested 0.29.1
+matplotlib>=3.8       # reliability diagram during training
+efficientnet_pytorch>=0.7.1   # tested 0.7.1 — backbone for the small-data linear probe (Apache-2.0)
