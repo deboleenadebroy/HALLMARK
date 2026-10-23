@@ -1,0 +1,208 @@
+{
+  "validation": {
+    "passed": false,
+    "reasons": [
+      "held-out-source ROC-AUC 0.651 < 0.8",
+      "held-out-source balanced accuracy 0.433 < 0.7"
+    ],
+    "criteria": {
+      "min_roc_auc": 0.8,
+      "min_balanced_accuracy": 0.7,
+      "min_sources_per_class": 3
+    },
+    "sources_per_class": {
+      "authentic": 3,
+      "forged": 12
+    }
+  },
+  "evaluation": "nested leave-one-source-out",
+  "test_uncalibrated": {
+    "n": 254,
+    "accuracy": 0.484251968503937,
+    "precision_forged": 0.5234042553191489,
+    "recall_forged": 0.8661971830985915,
+    "f1_forged": 0.6525198938992043,
+    "confusion_matrix": [
+      [
+        0,
+        112
+      ],
+      [
+        19,
+        123
+      ]
+    ],
+    "confusion_matrix_labels": "rows=true [authentic, forged], cols=predicted [authentic, forged]",
+    "brier": 0.3084113775008887,
+    "log_loss": 0.9118774046375397,
+    "ece_15": 0.4056803088982121,
+    "roc_auc": 0.6512198189134809,
+    "balanced_accuracy": 0.43309859154929575
+  },
+  "test_calibrated": {
+    "n": 254,
+    "accuracy": 0.484251968503937,
+    "precision_forged": 0.5234042553191489,
+    "recall_forged": 0.8661971830985915,
+    "f1_forged": 0.6525198938992043,
+    "confusion_matrix": [
+      [
+        0,
+        112
+      ],
+      [
+        19,
+        123
+      ]
+    ],
+    "confusion_matrix_labels": "rows=true [authentic, forged], cols=predicted [authentic, forged]",
+    "brier": 0.2823288057565202,
+    "log_loss": 0.7656968725261325,
+    "ece_15": 0.35505736732027515,
+    "roc_auc": 0.2861544265593562,
+    "balanced_accuracy": 0.43309859154929575
+  },
+  "per_source_test": {
+    "Upto-4th-Sem-Markscard_page-0002": {
+      "n": 38,
+      "label": "authentic",
+      "mean_p_forged": 0.569,
+      "accuracy": 0.0
+    },
+    "Upto-4th-Sem-Markscard_page-0003": {
+      "n": 37,
+      "label": "authentic",
+      "mean_p_forged": 0.505,
+      "accuracy": 0.0
+    },
+    "Upto-4th-Sem-Markscard_page-0004": {
+      "n": 37,
+      "label": "authentic",
+      "mean_p_forged": 0.551,
+      "accuracy": 0.0
+    },
+    "f1": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.527,
+      "accuracy": 1.0
+    },
+    "f10": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.524,
+      "accuracy": 1.0
+    },
+    "f2": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.508,
+      "accuracy": 1.0
+    },
+    "f3": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.192,
+      "accuracy": 0.0
+    },
+    "f4": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.521,
+      "accuracy": 1.0
+    },
+    "f5": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.507,
+      "accuracy": 1.0
+    },
+    "f6": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.516,
+      "accuracy": 1.0
+    },
+    "f7": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.525,
+      "accuracy": 1.0
+    },
+    "f8": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.515,
+      "accuracy": 1.0
+    },
+    "f9": {
+      "n": 13,
+      "label": "forged",
+      "mean_p_forged": 0.506,
+      "accuracy": 1.0
+    },
+    "fnew1": {
+      "n": 6,
+      "label": "forged",
+      "mean_p_forged": 0.492,
+      "accuracy": 0.0
+    },
+    "fnew2": {
+      "n": 6,
+      "label": "forged",
+      "mean_p_forged": 0.524,
+      "accuracy": 1.0
+    }
+  },
+  "official_split": {
+    "metrics": {
+      "n": 40,
+      "accuracy": 1.0,
+      "precision_forged": 1.0,
+      "recall_forged": 1.0,
+      "f1_forged": 1.0,
+      "confusion_matrix": [
+        [
+          21,
+          0
+        ],
+        [
+          0,
+          19
+        ]
+      ],
+      "confusion_matrix_labels": "rows=true [authentic, forged], cols=predicted [authentic, forged]",
+      "brier": 0.017102445774687846,
+      "log_loss": 0.1264743598628606,
+      "ece_15": 0.1166786695834245,
+      "roc_auc": 1.0
+    },
+    "test_sources": 12,
+    "test_sources_also_in_train": 12,
+    "note": "Dataset's own split. Inflated when test sources also appear in training."
+  },
+  "region_diagnostic": {
+    "n_regions": 762,
+    "n_forged_regions": 346,
+    "loso_roc_auc": 0.9959,
+    "loso_accuracy": 0.9816,
+    "note": "Diagnostic only: regions come from ground-truth boxes; no detector is trained."
+  },
+  "C_per_fold": {
+    "Upto-4th-Sem-Markscard_page-0002": 0.0003,
+    "Upto-4th-Sem-Markscard_page-0003": 0.0003,
+    "Upto-4th-Sem-Markscard_page-0004": 0.0003,
+    "f1": 0.0003,
+    "f10": 0.0003,
+    "f2": 0.0003,
+    "f3": 0.003,
+    "f4": 0.0003,
+    "f5": 0.0003,
+    "f6": 0.0003,
+    "f7": 0.0003,
+    "f8": 0.0003,
+    "f9": 0.0003,
+    "fnew1": 0.0003,
+    "fnew2": 0.0003
+  }
+}

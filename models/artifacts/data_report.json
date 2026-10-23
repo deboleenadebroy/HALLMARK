@@ -1,0 +1,162 @@
+{
+  "n_images": 254,
+  "class_counts": {
+    "authentic": 112,
+    "forged": 142
+  },
+  "source_counts": {
+    "test": 40,
+    "train": 183,
+    "valid": 31
+  },
+  "formats": {
+    "JPEG": 254
+  },
+  "width": {
+    "min": 640,
+    "median": 640,
+    "max": 640
+  },
+  "height": {
+    "min": 640,
+    "median": 640,
+    "max": 640
+  },
+  "exact_duplicate_files": 239,
+  "exact_duplicates_with_conflicting_labels": 0,
+  "near_duplicate_pairs": 2845,
+  "grouping_strategy": "dhash256<=4",
+  "template_leakage_controlled": true,
+  "duplicate_groups": 15,
+  "largest_group": 38,
+  "unreadable_files": [],
+  "unlabelled_files": 0,
+  "source_grouping": "roboflow original file name",
+  "n_sources": 15,
+  "sources": {
+    "Upto-4th-Sem-Markscard_page-0002": {
+      "images": 38,
+      "labels": {
+        "authentic": 38
+      }
+    },
+    "Upto-4th-Sem-Markscard_page-0003": {
+      "images": 37,
+      "labels": {
+        "authentic": 37
+      }
+    },
+    "Upto-4th-Sem-Markscard_page-0004": {
+      "images": 37,
+      "labels": {
+        "authentic": 37
+      }
+    },
+    "f1": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f10": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f2": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f3": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f4": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f5": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f6": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f7": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f8": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "f9": {
+      "images": 13,
+      "labels": {
+        "forged": 13
+      }
+    },
+    "fnew1": {
+      "images": 6,
+      "labels": {
+        "forged": 6
+      }
+    },
+    "fnew2": {
+      "images": 6,
+      "labels": {
+        "forged": 6
+      }
+    }
+  },
+  "sources_per_class": {
+    "authentic": 3,
+    "forged": 12
+  },
+  "format": {
+    "format": "yolo",
+    "yaml": "data.yaml",
+    "class_names": [
+      "fake",
+      "true"
+    ],
+    "forged_class_ids": [
+      0
+    ],
+    "image_label_rule": "forged if any labelled region is of a forged class",
+    "license": "CC BY 4.0",
+    "source_url": "https://universe.roboflow.com/bnm/certificate-forgery-detection-avxar/dataset/1"
+  },
+  "region_counts": {
+    "true": 416,
+    "fake": 346
+  },
+  "regions_per_image": {
+    "3": 254
+  },
+  "official_split_leakage": {
+    "split_sizes": {
+      "test": 40,
+      "train": 183,
+      "val": 31
+    },
+    "test_sources": 12,
+    "test_sources_also_in_train_or_val": 12
+  }
+}
